@@ -155,8 +155,15 @@ def main():
     updated = False
 
     for prop_bitstr in args.props:
+        if prop_bitstr.find(':') == -1:
+            raise ValueError(f'Argument {prop_bitstr} should be in format PROPERTY:BITSTRING')
+
         property = prop_bitstr.split(':')[0]
         bitstr = prop_bitstr.split(':')[1]
+
+        if not all(c in '01' for c in bitstr):
+            raise ValueError(f'Bitstring {bitstr} should contain only 0 and 1')
+
         if property == kProjectCodeProperty:
             raise ValueError(f'Project code change is not supported')
 
