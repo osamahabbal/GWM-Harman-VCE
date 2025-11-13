@@ -1,6 +1,7 @@
 {	
 	"size": 67,
 	"project_code": 143,
+	"project_code_legacy": 68,
 	"ro.vehicle.config": {
 		"AAA": "[0][7:0]",
 		"PAS": "[1][2:0]",

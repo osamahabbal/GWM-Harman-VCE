@@ -123,11 +123,15 @@ def validateConfig(data: bytes, map) -> None:
     
     table = getPositionTable(map)
     aaa = table['AAA']
-    expected_project_code = map['project_code']
     bstr = readBits(data, Position(aaa))
     actual_project_code = int(bstr, 2)
-    if expected_project_code != actual_project_code:
-        raise ValueError(f"Unsupported project code: expected {expected_project_code}, got {actual_project_code}")
+    project_code = map['project_code']
+    project_code_legacy = map['project_code_legacy']
+    if actual_project_code != project_code:
+        if actual_project_code == project_code_legacy:
+            print('Legacy config detected: make sure you have updated the firmware to the latest version')
+        else:
+            raise ValueError(f"Unsupported project code: expected {project_code} or {project_code_legacy}, got {actual_project_code}")
     
     for property, pos in table.items():
         position = Position(pos)
