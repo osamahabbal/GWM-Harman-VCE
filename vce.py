@@ -62,7 +62,7 @@ class Position:
     high_bit = 0
     low_bit = 0
 
-    def _is_valid_bit_pos(self, pos: int) -> bool:
+    def _isValidBitPos(self, pos: int) -> bool:
         return 0 <= pos <= 7
 
     #
@@ -74,10 +74,10 @@ class Position:
             raise ValueError(f'Invalid position format: {pos}')
         
         byte_idx, high_bit, low_bit = map(int, match.groups())
-        if not self._is_valid_bit_pos(high_bit):
+        if not self._isValidBitPos(high_bit):
             raise OverflowError(f'High bit {high_bit} should be in range [0...7]')
 
-        if not self._is_valid_bit_pos(low_bit):
+        if not self._isValidBitPos(low_bit):
             raise OverflowError(f'Low bit {low_bit} should be in range [0...7]')
         
         if low_bit > high_bit:
@@ -101,7 +101,7 @@ def readBits(data: bytes, pos: Position) -> str:
 # @param[in] pos: Position
 # @param[in] value: Little-endian bitstring
 #
-def writeBits(data: bytearray, pos: Position, value: str):
+def writeBits(data: bytearray, pos: Position, value: str) -> None:
     value_len = len(value)
     expected_len = pos.high_bit - pos.low_bit + 1
     if value_len != expected_len:
@@ -110,6 +110,26 @@ def writeBits(data: bytearray, pos: Position, value: str):
     bitlist = list(format(data[pos.byte_idx], '08b'))
     bitlist[8 - pos.high_bit - 1:8 - pos.low_bit] = list(value)
     data[pos.byte_idx] = int(''.join(bitlist), 2)
+
+#
+# Writes number at a given position
+# @remark Value is converted to a bit string of required length (padded with leading zeros)
+# @param[in] data: Configuration bytes
+# @param[in] pos: Position
+# @param[in] value: Number
+#
+def writeNumber(data: bytearray, pos: Position, value: int) -> None:
+    bitstr = format(value, 'b')
+    actual_len = len(bitstr)
+    expected_len = pos.high_bit - pos.low_bit + 1
+
+    if actual_len > expected_len:
+        raise OverflowError(f'Value {value} is too large')
+    
+    if actual_len < expected_len:
+        bitstr = '0' * (expected_len - actual_len) + bitstr 
+    
+    writeBits(data, pos, bitstr)
 
 #
 # Validates config size and project code against map
@@ -130,9 +150,49 @@ def validateConfig(data: bytes, map) -> None:
         position = Position(pos)
         if position.byte_idx >= data_len - 1:  # Last byte is CRC
             raise OverflowError(f'Property {property} has invalid index {position.byte_idx}')
+        
+#
+# Property name and value
+#
+class Property:
+    name = ''
+    bitstr = ''
+    number = 0
+
+    def _splitProps(self, sep: str, props: str):
+        split = props.split(sep)
+        if len(split) < 2:
+            return None
+        return split
+    
+    def _extractBistr(self, s: str) -> str:
+        if len(s) == 0 or not all(c in '01' for c in s):
+            raise ValueError(f'Bitstring {s} should contain only 0 and 1')
+        return s
+    
+    def _extractNumber(self, s: str) -> int:
+        n = int(s, 0)         # Select base automatically
+        if n < 0 or n > 255:  # Should fit in a byte
+            raise ValueError(f'Number {n} should be positive and less than 255')
+        return n
+
+    def __init__(self, props: str):
+        split = self._splitProps(':', props)
+        if not split is None:
+            self.name = split[0]
+            self.bitstr = self._extractBistr(split[1])
+            return
+        
+        split = self._splitProps('=', props)
+        if not split is None:
+            self.name = split[0]
+            self.number = self._extractNumber(split[1])
+            return
+
+        raise ValueError(f'Argument {props} should be in format PROPERTY:BITSTRING or PROPERTY=DECVALUE or PROPERTY=HEXVALUE')
 
 #
-# Do processing and enjoy
+# Does processing
 #
 def main():
     parser = argparse.ArgumentParser()
@@ -150,24 +210,19 @@ def main():
     validateConfig(data, map)
     updated = False
 
-    for prop_bitstr in args.props:
-        if prop_bitstr.find(':') == -1:
-            raise ValueError(f'Argument {prop_bitstr} should be in format PROPERTY:BITSTRING')
-
-        property = prop_bitstr.split(':')[0]
-        bitstr = prop_bitstr.split(':')[1]
-
-        if not all(c in '01' for c in bitstr):
-            raise ValueError(f'Bitstring {bitstr} should contain only 0 and 1')
-
-        if property == kProjectCodeProperty:
+    for property in [Property(p) for p in args.props]:
+        name = property.name
+        if name == kProjectCodeProperty:
             raise ValueError(f'Project code change is not supported')
 
-        position = getPositionTable(map).get(property)
+        position = getPositionTable(map).get(name)
         if position is None:
-            raise KeyError(f"Property '{property}' not found in map")
-
-        writeBits(data, Position(position), bitstr)
+            raise KeyError(f"Property '{name}' not found in map")
+        
+        if len(property.bitstr) > 0:
+            writeBits(data, Position(position), property.bitstr)
+        else:
+            writeNumber(data, Position(position), property.number)
         updated = True
 
     if updated:
@@ -176,7 +231,7 @@ def main():
         writeConfig(args.dst, data)
 
 #
-# Launch main
+# Launches main
 #
 if __name__ == "__main__":
     main()
