@@ -11,6 +11,7 @@
             --card-bg: #ffffff;
             --border: #dee2e6;
             --text: #212529;
+            --desc-color: #666;
         }
 
         body {
@@ -27,7 +28,6 @@
             margin: 0 auto;
         }
 
-        /* Header Area */
         .header {
             display: flex;
             justify-content: space-between;
@@ -86,10 +86,9 @@
         button.secondary { background-color: #6c757d; }
         button.secondary:hover { background-color: #5a6268; }
 
-        /* Grid for Parameters */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
         }
 
@@ -98,19 +97,37 @@
             border: 1px solid var(--border);
             padding: 10px;
             border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .control-item label {
+        .control-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            color: #495057;
+            align-items: flex-start;
+            margin-bottom: 8px;
         }
-        
-        .control-item .meta {
+
+        .param-label {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.9em;
+        }
+
+        .param-desc {
+            display: block;
+            font-size: 0.85em;
+            color: var(--desc-color);
+            margin-bottom: 5px;
+            min-height: 1.2em;
+            line-height: 1.3;
+        }
+
+        .meta {
             font-size: 0.7em;
             color: #adb5bd;
-            font-weight: normal;
+            white-space: nowrap;
         }
 
         .control-item input {
@@ -128,13 +145,13 @@
             margin-top: 5px;
         }
         
-        /* Align stats based on direction */
         html[dir="ltr"] .stats { text-align: right; }
         html[dir="rtl"] .stats { text-align: left; }
+        html[dir="rtl"] .control-header { flex-direction: row-reverse; }
+        html[dir="rtl"] #searchBox { text-align: right; }
 
         .error { color: #dc3545; font-size: 0.9rem; margin-top: 5px; display: none; }
 
-        /* Footer Credits */
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -148,12 +165,6 @@
             text-decoration: none;
             font-weight: bold;
         }
-        .footer a:hover { text-decoration: underline; }
-
-        /* RTL Specific Adjustments */
-        html[dir="rtl"] .control-item label { flex-direction: row-reverse; }
-        html[dir="rtl"] #searchBox { text-align: right; }
-        
     </style>
 </head>
 <body dir="ltr">
@@ -203,7 +214,6 @@
 </div>
 
 <script>
-    // --- TRANSLATION DATA ---
     const translations = {
         en: {
             title: "Haval Jolion Config Editor",
@@ -255,9 +265,116 @@
         }
     };
 
+    const paramDesc = {
+        "AAA": { en: "PROJECT CODE", ru: "КОД ПРОЕКТА" },
+        "PAS": { en: "SEAT HEATING", ru: "ПОДОГРЕВ СИДЕНИЙ" },
+        "VAA": { en: "AUDIO+VIDEO SYSTEM", ru: "АУДИО+ВИДЕО СИСТЕМА" },
+        "TBV": { en: "TRAFFIC SIGN WARNING", ru: "ПРЕДУПРЕЖДАЮЩИЙ ДОРОЖНЫЙ ЗНАК" },
+        "DAA": { en: "FUEL", ru: "ТОПЛИВО" },
+        "EAA": { en: "TRANSMISSION", ru: "ПЕРЕДАЧА ИНФЕКЦИИ" },
+        "CAL": { en: "IDLE STOP AND GO", ru: "ХОЛОСТОЙ СТОП И ИДТИ" },
+        "AAC": { en: "REGIONAL", ru: "РЕГИОНАЛЬНЫЙ" },
+        "BAA": { en: "DRIVE HANDLE TYPE", ru: "ТИП ПРИВОДНОЙ РУЧКИ" },
+        "KAG": { en: "OUTSIDE RR VIEW MIRROR", ru: "ВНЕШНЕЕ ЗЕРКАЛО ОБЗОРА" },
+        "ZE0": { en: "SALES AREA", ru: "ТОРГОВАЯ ЗОНА" },
+        "PAA": { en: "DRIVER SEAT", ru: "СИДЕНЬЕ ВОДИТЕЛЯ" },
+        "KAJ": { en: "FRT DEAD ANGLE SYSTEM", ru: "СИСТЕМА МЕРТВОГО УГЛА FRT" },
+        "TAA": { en: "REVERSE VIDEO", ru: "ОБРАТНОЕ ВИДЕО" },
+        "PAT": { en: "FRT SEAT COOLING+MASSAGE", ru: "ОХЛАЖДЕНИЕ+МАССАЖ ПЕРЕДНЕГО СИДЕНЬЯ" },
+        "SAF": { en: "HEAD LAMP AUTO OFF", ru: "ФАРЫ АВТО ВЫКЛ." },
+        "SAA": { en: "HEAD LAMP ADJUSTMENT", ru: "РЕГУЛИРОВКА ФАР" },
+        "RAB": { en: "CLUSTER", ru: "КЛАСТЕР" },
+        "TAT": { en: "COLLISION WARNING+AEB", ru: "ПРЕДУПРЕЖДЕНИЕ О СТОЛКНОВЕНИИ+AEB" },
+        "SAQ": { en: "MOOD LAMP", ru: "ЛАМПА НАСТРОЕНИЯ" },
+        "TAU": { en: "STARTING SYSTEM", ru: "СИСТЕМА ЗАПУСКА" },
+        "TAB": { en: "AUTO PARKING SYSTEM", ru: "СИСТЕМА АВТОПАРКОВКИ" },
+        "TAS": { en: "DROWSINESS WARNING", ru: "СИСТЕМА ПРЕДУПРЕЖДЕНИЯ СОНЛИВОСТИ" },
+        "TAQ": { en: "LDW+LKA", ru: "ЛДВ+ЛКА" },
+        "TBK": { en: "DR OPEN WARNING", ru: "ПРЕДУПРЕЖДЕНИЕ DR ОТКРЫТО" },
+        "TBA": { en: "OMNIVIEW SYSTEM", ru: "СИСТЕМА ОМНИВЬЮ" },
+        "UAC": { en: "AIR QUALITY SYSTEM", ru: "СИСТЕМА КАЧЕСТВА ВОЗДУХА" },
+        "UAB": { en: "AIR CONDITIONER", ru: "КОНДИЦИОНЕР ВОЗДУХА" },
+        "VAQ": { en: "HMI", ru: "ВЗАИМОДЕЙСТВИЕ ЧЕЛОВЕКА С КОМПЬЮТЕРОМ" },
+        "VAM": { en: "VOICE RECOGNITION", ru: "РАСПОЗНАВАНИЕ ГОЛОСА" },
+        "VAL": { en: "TELEMATICS", ru: "ТЕЛЕМАТИКА" },
+        "TAR": { en: "LANE CHANGE ASSIST", ru: "Ассистент смены полосы движения" },
+        "VAR": { en: "ELECTRIC SOUND REMINDER", ru: "ЭЛЕКТРИЧЕСКОЕ ЗВУКОВОЕ НАПОМИНАНИЕ" },
+        "TBU": { en: "REMOTE RESERVATION CHARGING", ru: "ДИСТАНЦИОННАЯ ОПЛАТА БРОНИРОВАНИЯ" },
+        "ZF4": { en: "LANE SUPPORT HAPTIC", ru: "ТАКТИЧЕСКОЕ НАПОМИНАНИЕ ПОЛОСЫ" },
+        "TBR": { en: "VOICE & FACIAL RECOGNITION", ru: "РАСПОЗНАВАНИЕ ГОЛОСА И ЛИЦА" },
+        "PAP": { en: "PASS WAIST SUPPORTER", ru: "ПОДДЕРЖКА ПОЯСНОСТИ" },
+        "VAJ": { en: "NAVIGATION", ru: "НАВИГАЦИЯ" },
+        "TBW": { en: "REAR COLLISION WARNING", ru: "ПРЕДУПРЕЖДЕНИЕ ЗАДНЕГО СТОЛКНОВЕНИЯ" },
+        "HAJ": { en: "BRAKING ENERGY RECOVERY", ru: "РЕКУПЕРАЦИЯ ЭНЕРГИИ ТОРМОЖЕНИЯ" },
+        "PAE": { en: "DRIVER WAIST SUPPORTER", ru: "ПОДДЕРЖКА ПОЯСНОСТИ ВОДИТЕЛЯ" },
+        "LAA": { en: "DECK", ru: "ПАЛУБА" },
+        "VAF": { en: "SPEAKER", ru: "ДИНАМИК" },
+        "ZA3": { en: "FRONT SENSOR", ru: "ПЕРЕДНИЙ ДАТЧИК" },
+        "ZA2": { en: "REAR PAS SENSOR", ru: "ЗАДНИЙ ДАТЧИК PAS" },
+        "TAW": { en: "BLUETOOTH", ru: "BLUETOOTH" },
+        "KAQ": { en: "RR DOOR OPENING", ru: "ОТКРЫТИЕ ЗАДНЕЙ ДВЕРИ" },
+        "TAM": { en: "PAS+CTA", ru: "PAS+CTA" },
+        "UAH": { en: "FRAGRANCE SYSTEM", ru: "АРОМАТИЧЕСКАЯ СИСТЕМА" },
+        "NAF": { en: "AIR PURIFIER", ru: "ОЧИСТИТЕЛЬ ВОЗДУХА" },
+        "ZC2": { en: "SEAT CONTROL MODULE", ru: "МОДУЛЬ УПРАВЛЕНИЯ СИДЕНЬЕМ" },
+        "TCR": { en: "REMOTE CONTROL", ru: "ДИСТАНЦИОННОЕ УПРАВЛЕНИЕ" },
+        "ZA0": { en: "DOOR UNLOCK MODE", ru: "РЕЖИМ РАЗБЛОКИРОВКИ ДВЕРИ" },
+        "RAE": { en: "OFF-ROAD INFO DISPLAY", ru: "ИНФОРМАЦИОННЫЙ ДИСПЛЕЙ ДЛЯ ВНЕДОРОЖНОСТИ" },
+        "ZB3": { en: "DEFAULT TEMP UNIT", ru: "ЕДИНИЦА ТЕМПЕРАТУРЫ ПО УМОЛЧАНИЮ" },
+        "ZF5": { en: "ENHANCED ASSIST HAPTIC", ru: "ТАКТИЧЕСКОЕ НАПОМИНАНИЕ РАСШ. СИСТЕМ" },
+        "VAG": { en: "AMPLIFIER", ru: "УСИЛИТЕЛЬ" },
+        "KAT": { en: "TRAILING HOOK", ru: "ПРОДВИЖНОЙ КРЮК" },
+        "ZE2": { en: "INTELLIGENT NETWORK SERVICE", ru: "ИНТЕЛЛЕКТУАЛЬНЫЙ СЕТЕВОЙ СЕРВИС" },
+        "TBG": { en: "VIDEO DATA RECORDER", ru: "РЕГИСТРАТОР ВИДЕОДАННЫХ" },
+        "FAA": { en: "STEERING SYSTEM", ru: "СИСТЕМА РУЛЕВОГО УПРАВЛЕНИЯ" },
+        "CBC": { en: "OFF-ROAD CRUISE CONTROL", ru: "ВНЕДОРОЖНЫЙ КРУИЗ-КОНТРОЛЬ" },
+        "ZA5": { en: "DRIVING MODE OPTIONAL", ru: "РЕЖИМ ВОЖДЕНИЯ ДОПОЛНИТЕЛЬНО" },
+        "ZB6": { en: "PARKING LAMP", ru: "СТОЯНОЧНАЯ ФОНАРЬ" },
+        "ZB7": { en: "OMNIVIEW CONFIG INFO", ru: "СИСТЕМА OMNIVIEW (ИНФОРМАЦИЯ)" },
+        "HAE": { en: "PARKING BRAKE", ru: "СТОЯНОЧНЫЙ ТОРМОЗ" },
+        "TBQ": { en: "HEAD UP DISPLAY", ru: "ПРОЕКЦИОННЫЙ ДИСПЛЕЙ" },
+        "UAG": { en: "INDOOR AUTO DEMISTING", ru: "АВТОМАТИЧЕСКОЕ ТУМОУВЛАЖНЕНИЕ" },
+        "TBH": { en: "WIRELESS CHARGER", ru: "БЕСПРОВОДНОЕ ЗАРЯДНОЕ УСТРОЙСТВО" },
+        "TCD": { en: "FRONT CROSS WARNING+BREAK", ru: "ПЕРЕДНЕЕ КРЕСТОВОЕ ПРЕДУПРЕЖДЕНИЕ" },
+        "MAE": { en: "DRIVER WINDOW OPERATING", ru: "ОКНО ВОДИТЕЛЯ РАБОТАЕТ" },
+        "SAK": { en: "AUTO LIGHT SYSTEM", ru: "СИСТЕМА АВТОСВЕТА" },
+        "TCE": { en: "AEB JUNCTION ASSIST", ru: "AEB JUNCTION ASSIST" },
+        "BAF": { en: "SPECIAL COUNTRY(EXPORT)", ru: "СПЕЦИАЛЬНАЯ СТРАНА(ЭКСПОРТ)" },
+        "TAY": { en: "SUPER LOCK", ru: "СУПЕР ЗАМОК" },
+        "KAN": { en: "SIDE STEP", ru: "БОКОВОЙ ШАГ" },
+        "TCF": { en: "AUTO EVASIVE STEERING", ru: "АВТО УКЛОНЯЮЩЕЕ РУЛЕВОЕ УПРАВЛЕНИЕ" },
+        "ZG3": { en: "MEMORY OF DRIVING MODE", ru: "ПАМЯТЬ РЕЖИМА ВОЖДЕНИЯ" },
+        "ZG2": { en: "DRIVING MODE 2", ru: "РЕЖИМ ВОЖДЕНИЯ 2" },
+        "MAG": { en: "RR 1ST WINDOW OPERATING", ru: "RR 1-ОЕ ОКНО РАБОТАЕТ" },
+        "MAF": { en: "PASSENGER WINDOW OPERATING", ru: "ОКНО ПАССАЖИРСКОГО ОКНА В РАБОТЕ" },
+        "EAM": { en: "E-PARK", ru: "Е-ПАРК" },
+        "ZF6": { en: "SMART START STOP MEMORY", ru: "УМНЫЙ ПЕРЕКЛЮЧАТЕЛЬ СТАРТ-СТОП" },
+        "ZC3": { en: "SUN ROOF CONTROLLER", ru: "КОНТРОЛЛЕР ЛЮКА НА КРЫШЕ" },
+        "ZH1": { en: "BATTERY TEMP KEEP", ru: "ПОДДЕРЖИВАНИЕ ТЕМПЕРАТУРЫ АКБ" },
+        "TCP": { en: "EMERGENCY STEERING SUPPORT", ru: "АВАРИЙНАЯ РУЛЕВАЯ ПОДДЕРЖКА" },
+        "ZH3": { en: "BATTERY SENSOR", ru: "ДАТЧИК АККУМУЛЯТОРА" },
+        "KAU": { en: "RADIATOR GRILLE", ru: "РЕШЕТКА РАДИАТОРА" },
+        "EAN": { en: "OFF-ROAD EXPERT MODE", ru: "ЭКСПЕРТНЫЙ РЕЖИМ ВНЕДОРОЖЬЯ" },
+        "MAK": { en: "FR WINDSHIELD HEAT NOZZLE", ru: "НАСАДКА ОБОГРЕВА ВЕТРОВОГО СТЕКЛА" },
+        "TDE": { en: "ACTIVE ACCESS SYSTEM", ru: "СИСТЕМА АКТИВНОГО ДОСТУПА" },
+        "PAB": { en: "PASSENGER SEAT", ru: "ПАССАЖИРСКОЕ СИДЕНЬЕ" },
+        "HAQ": { en: "DYNAMIC STEERING TORQUE", ru: "ДИНАМИЧЕСКИЙ РУЛЕВОЙ МОМЕНТ" },
+        "FAD": { en: "STEERING HEATING", ru: "ПОДОГРЕВ РУЛЕВОГО УПРАВЛЕНИЯ" },
+        "ZM2": { en: "SEAT MEMORY TYPE", ru: "ТИП С ПАМЯТЬЮ СИДЕНЬЯ" },
+        "TAN": { en: "FRONT WIPER SYSTEM", ru: "СИСТЕМА ПЕРЕДНЕГО СТЕКЛООЧИСТИТЕЛЯ" },
+        "MAL": { en: "WINDSHIELD HEATING", ru: "ОБОГРЕВ ЛОБОВОГО" },
+        "ZJ9": { en: "DVR", ru: "Видеорегистратор" },
+        "ZE4": { en: "SMART JUNCTION BOX", ru: "УМНАЯ РАСПРЕДЕЛИТЕЛЬНАЯ КОРОБКА" },
+        "AAE": { en: "POWER TRAIN TYPE", ru: "ТИП СИЛОВОЙ ПЕРЕДАЧИ" },
+        "PBW": { en: "PASSENGER SEAT MASSAGE", ru: "МАССАЖ ПАССАЖИРСКОГО СИДЕНИЯ" },
+        "PBU": { en: "DRIVER SEAT MASSAGE", ru: "МАССАЖ ВОДИТЕЛЬСКОГО СИДЕНЬЯ" },
+        "PBV": { en: "PASSENGER SEAT COOLING", ru: "ОХЛАЖДЕНИЕ ПАССАЖИРСКОГО СИДЕНИЯ" },
+        "PBT": { en: "DRIVER SEAT COOLING", ru: "ОХЛАЖДЕНИЕ СИДЕНЬЯ ВОДИТЕЛЯ" },
+        "ZA4": { en: "ELECTRIC LANGUAGE", ru: "ЯЗЫК ГОЛОСОВОГО АССИСТЕНТА" }
+    };
+
     let currentLang = 'en';
 
-    // --- MAPPING DATA (From user provided haval_jolion.json) ---
     const configMap = {
         "AAA": "[0][7:0]", "PAS": "[1][2:0]", "VAA": "[1][7:3]", "TBV": "[2][3:0]", "DAA": "[2][7:4]",
         "EAA": "[3][7:0]", "CAL": "[4][1:0]", "AAC": "[4][5:2]", "BAA": "[4][7:6]", "KAG": "[5][7:0]",
@@ -294,30 +411,48 @@
     let currentBytes = [];
     let parsedRules = {};
 
-    // --- LANGUAGE HANDLER ---
-
     function changeLanguage(lang) {
         currentLang = lang;
         const t = translations[lang];
 
-        // 1. Update Direction
         document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
 
-        // 2. Update Text Elements (data-i18n)
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (t[key]) el.innerText = t[key];
         });
 
-        // 3. Update Placeholders
         document.getElementById('searchBox').placeholder = t.search_placeholder;
 
-        // 4. Update Error message if visible
         const err = document.getElementById('errorMsg');
         if (err.style.display === 'block') err.innerText = t.error_short;
+
+        updateGridDescriptions();
     }
 
-    // --- UTILITIES ---
+    function updateGridDescriptions() {
+        const items = document.getElementsByClassName('control-item');
+        if (items.length === 0) return;
+
+        const keys = Object.keys(configMap).sort();
+        keys.forEach(key => {
+            const descSpan = document.getElementById(`desc_${key}`);
+            if (descSpan) {
+                descSpan.innerText = getDesc(key);
+            }
+        });
+    }
+
+    function getDesc(key) {
+        if (!paramDesc[key]) return "";
+        let val = "";
+        if (currentLang === 'ru') {
+            val = paramDesc[key].ru;
+        } else {
+            val = paramDesc[key].en;
+        }
+        return val || "";
+    }
 
     function cleanHex(str) {
         return str.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
@@ -352,58 +487,68 @@
             shift: lowBit,
             mask: mask << lowBit,
             rawMask: mask,
-            maxVal: mask
+            maxVal: mask // Fixed variable name here
         };
     }
 
-    // --- APP LOGIC ---
-
     function loadConfig() {
-        const inputField = document.getElementById('inputHex');
-        const errorMsg = document.getElementById('errorMsg');
-        const grid = document.getElementById('editorGrid');
-        
-        const rawHex = cleanHex(inputField.value);
-        
-        if (rawHex.length < 10) {
-            errorMsg.innerText = translations[currentLang].error_short;
-            errorMsg.style.display = "block";
-            return;
-        }
-        errorMsg.style.display = "none";
-
-        currentBytes = hexToBytes(rawHex);
-        grid.innerHTML = ''; // Clear existing
-
-        const keys = Object.keys(configMap).sort(); 
-        
-        keys.forEach(key => {
-            const rule = parseLogic(key, configMap[key]);
-            parsedRules[key] = rule;
-
-            let currentVal = 0;
-            if (currentBytes[rule.byteIdx] !== undefined) {
-                currentVal = (currentBytes[rule.byteIdx] & rule.mask) >> rule.shift;
+        try {
+            const inputField = document.getElementById('inputHex');
+            const errorMsg = document.getElementById('errorMsg');
+            const grid = document.getElementById('editorGrid');
+            
+            const rawHex = cleanHex(inputField.value);
+            
+            if (rawHex.length < 10) {
+                errorMsg.innerText = translations[currentLang].error_short;
+                errorMsg.style.display = "block";
+                return;
             }
+            errorMsg.style.display = "none";
 
-            const div = document.createElement('div');
-            div.className = 'control-item';
-            div.innerHTML = `
-                <label>
-                    ${key} 
-                    <span class="meta">[${rule.byteIdx}][${rule.shift + (rule.rawMask.toString(2).length -1)}:${rule.shift}]</span>
-                </label>
-                <input type="number" 
-                    id="param_${key}" 
-                    value="${currentVal}" 
-                    min="0" 
-                    max="${rule.maxVal}" 
-                    oninput="updateValue('${key}')">
-            `;
-            grid.appendChild(div);
-        });
+            currentBytes = hexToBytes(rawHex);
+            grid.innerHTML = ''; 
 
-        generateOutput();
+            const keys = Object.keys(configMap).sort(); 
+            
+            keys.forEach(key => {
+                const rule = parseLogic(key, configMap[key]);
+                if(!rule) return; // Skip broken rules safely
+                
+                parsedRules[key] = rule;
+
+                let currentVal = 0;
+                // Safe access to byte array
+                if (currentBytes[rule.byteIdx] !== undefined) {
+                    currentVal = (currentBytes[rule.byteIdx] & rule.mask) >> rule.shift;
+                }
+
+                const description = getDesc(key);
+
+                const div = document.createElement('div');
+                div.className = 'control-item';
+                div.innerHTML = `
+                    <div class="control-header">
+                        <span class="param-label">${key}</span>
+                        <span class="meta">[${rule.byteIdx}][${rule.shift + (rule.rawMask.toString(2).length -1)}:${rule.shift}]</span>
+                    </div>
+                    <span class="param-desc" id="desc_${key}">${description}</span>
+                    <input type="number" 
+                        id="param_${key}" 
+                        value="${currentVal}" 
+                        min="0" 
+                        max="${rule.maxVal}" 
+                        oninput="updateValue('${key}')">
+                `;
+                grid.appendChild(div);
+            });
+
+            generateOutput();
+
+        } catch (e) {
+            alert("Error parsing config: " + e.message);
+            console.error(e);
+        }
     }
 
     function updateValue(key) {
@@ -452,8 +597,8 @@
         const filter = document.getElementById('searchBox').value.toUpperCase();
         const items = document.getElementsByClassName('control-item');
         for (let i = 0; i < items.length; i++) {
-            const label = items[i].getElementsByTagName("label")[0];
-            if (label.innerText.toUpperCase().indexOf(filter) > -1) {
+            const textContent = items[i].innerText.toUpperCase();
+            if (textContent.indexOf(filter) > -1) {
                 items[i].style.display = "";
             } else {
                 items[i].style.display = "none";
