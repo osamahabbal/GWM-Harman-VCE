@@ -20,7 +20,7 @@ It is based on the logic from the original `vce.py` script by DymOK.
 
 ### 🚀 How to Use
 1.  **Read Config:** Use your OBDII scanner (Launch, Thinkdiag, etc.) to read the **Vehicle Config** string from the (HUT) module.
-2.  **Open Tool:** Go to the [Live Website](https://ossaamaaa.github.io/jolion-config-editor/) (Replace with your link).
+2.  **Open Tool:** Go to the [Live Website](https://osamahabbal.github.io/GWM-Harman-VCE/).
 3.  **Paste & Load:** Paste the hex string (e.g., `A1 04 5F...`) into the top box and click **"Load & Parse Settings"**.
 4.  **Edit:** Search for the parameter you want to change (e.g., `VAM`) and change the number.
 5.  **Write Back:** Copy the **New Configuration String** from the bottom box and write it back to your car using your scanner.
@@ -47,7 +47,7 @@ It is based on the logic from the original `vce.py` script by DymOK.
 
 ### 🚀 Как использовать
 1.  **Считайте конфиг:** Используйте OBDII сканер (Launch, Thinkdiag и др.) для чтения строки **Vehicle Config** из модуля (HUT).
-2.  **Откройте инструмент:** Перейдите на [Сайт](https://ossaamaaa.github.io/jolion-config-editor/) (Вставьте вашу ссылку).
+2.  **Откройте инструмент:** Перейдите на [Сайт](https://osamahabbal.github.io/GWM-Harman-VCE/).
 3.  **Вставьте и Загрузите:** Вставьте hex-строку (например, `A1 04 5F...`) в верхнее поле и нажмите **"Загрузить настройки"**.
 4.  **Редактируйте:** Найдите нужный параметр (например, `VAM`) и измените значение.
 5.  **Запишите обратно:** Скопируйте **Новую строку конфигурации** из нижнего поля и запишите её обратно в автомобиль через сканер.
@@ -74,7 +74,7 @@ It is based on the logic from the original `vce.py` script by DymOK.
 
 ### 🚀 طريقة الاستخدام
 1.  **قراءة الكود:** استخدم جهاز فحص (مثل Launch أو Thinkdiag) لقراءة كود **Vehicle Config** من وحدة  (HUT).
-2.  **افتح الأداة:** ادخل إلى [رابط الموقع](https://ossaamaaa.github.io/jolion-config-editor/) (ضع رابطك هنا).
+2.  **افتح الأداة:** ادخل إلى [رابط الموقع](https://osamahabbal.github.io/GWM-Harman-VCE/).
 3.  **الصق وحمل:** الصق الكود (مثال: `...A1 04 5F`) في المربع العلوي واضغط على **"تحميل الإعدادات"**.
 4.  **عدّل:** ابحث عن الإعداد الذي تريد تغييره (مثل `VAM`) وقم بتغيير الرقم.
 5.  **احفظ:** انسخ **نص التكوين الجديد** من المربع السفلي واكتبه مرة أخرى في السيارة باستخدام جهاز الفحص.
