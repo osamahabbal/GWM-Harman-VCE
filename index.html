@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haval Jolion Config Editor</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #dee2e6;
+            --text: #212529;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Header Area */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .lang-select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            font-family: "Courier New", monospace;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        button:hover { background-color: #0056b3; }
+        button.secondary { background-color: #6c757d; }
+        button.secondary:hover { background-color: #5a6268; }
+
+        /* Grid for Parameters */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .control-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .control-item label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #495057;
+        }
+        
+        .control-item .meta {
+            font-size: 0.7em;
+            color: #adb5bd;
+            font-weight: normal;
+        }
+
+        .control-item input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .stats {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        /* Align stats based on direction */
+        html[dir="ltr"] .stats { text-align: right; }
+        html[dir="rtl"] .stats { text-align: left; }
+
+        .error { color: #dc3545; font-size: 0.9rem; margin-top: 5px; display: none; }
+
+        /* Footer Credits */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .footer a:hover { text-decoration: underline; }
+
+        /* RTL Specific Adjustments */
+        html[dir="rtl"] .control-item label { flex-direction: row-reverse; }
+        html[dir="rtl"] #searchBox { text-align: right; }
+        
+    </style>
+</head>
+<body dir="ltr">
+
+<div class="container">
+    <div class="header">
+        <h1 data-i18n="title">Haval Jolion Config Editor</h1>
+        <select class="lang-select" id="langSwitcher" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="ar">العربية</option>
+        </select>
+    </div>
+
+    <div class="card">
+        <label for="inputHex" data-i18n="lbl_input">Original Configuration String (Paste from Scanner)</label>
+        <textarea id="inputHex" placeholder="A1 04 5F ..."></textarea>
+        <div class="stats"><span data-i18n="lbl_length">Length</span>: <span id="inputLen">0</span> <span data-i18n="lbl_chars">chars</span></div>
+        <div id="errorMsg" class="error"></div>
+        <button onclick="loadConfig()" data-i18n="btn_load">Load & Parse Settings</button>
+    </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; flex-wrap: wrap; gap:10px;">
+            <label data-i18n="lbl_params" style="margin: auto 0;">Parameters</label>
+            <input type="text" id="searchBox" placeholder="Search parameters..." style="padding:5px; border:1px solid #ddd; border-radius:4px; flex-grow: 1; max-width: 300px;" onkeyup="filterParams()">
+        </div>
+        <div id="editorGrid" class="grid-container">
+            <div id="instructionText" style="color: #888; grid-column: 1/-1; text-align: center; padding: 20px;" data-i18n="msg_instruction">
+                Paste a hex string above and click "Load" to begin.
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <label for="outputHex" data-i18n="lbl_output">New Configuration String</label>
+        <textarea id="outputHex" readonly></textarea>
+        <div class="stats"><span data-i18n="lbl_length">Length</span>: <span id="outputLen">0</span> <span data-i18n="lbl_chars">chars</span></div>
+        <button onclick="copyOutput()" class="secondary" data-i18n="btn_copy">Copy to Clipboard</button>
+    </div>
+
+    <div class="footer">
+        <span data-i18n="credit_script">Original vce.py script by</span> <a href="https://t.me/DymOK" target="_blank">Dimitry (DymOK)</a>
+        <br>
+        <span data-i18n="credit_site">Web Interface by</span> <a href="https://t.me/ossaamaaa" target="_blank">Osama</a>
+    </div>
+</div>
+
+<script>
+    // --- TRANSLATION DATA ---
+    const translations = {
+        en: {
+            title: "Haval Jolion Config Editor",
+            lbl_input: "Original Configuration String (From Scanner)",
+            lbl_length: "Length",
+            lbl_chars: "chars",
+            btn_load: "Load & Parse Settings",
+            lbl_params: "Parameters",
+            search_placeholder: "Search parameters...",
+            msg_instruction: "Paste a hex string above and click 'Load' to begin.",
+            lbl_output: "New Configuration String",
+            btn_copy: "Copy to Clipboard",
+            btn_copied: "Copied!",
+            error_short: "Error: String is too short.",
+            credit_script: "Original vce.py script by",
+            credit_site: "Web Interface by"
+        },
+        ru: {
+            title: "Редактор Конфигурации Haval Jolion",
+            lbl_input: "Исходная строка конфигурации (из сканера)",
+            lbl_length: "Длина",
+            lbl_chars: "симв.",
+            btn_load: "Загрузить настройки",
+            lbl_params: "Параметры",
+            search_placeholder: "Поиск параметров...",
+            msg_instruction: "Вставьте hex строку выше и нажмите 'Загрузить'.",
+            lbl_output: "Новая строка конфигурации",
+            btn_copy: "Копировать",
+            btn_copied: "Скопировано!",
+            error_short: "Ошибка: Строка слишком короткая.",
+            credit_script: "Оригинальный скрипт vce.py от",
+            credit_site: "Веб-интерфейс от"
+        },
+        ar: {
+            title: "محرر إعدادات هافال جوليون",
+            lbl_input: "نص التكوين الأصلي (من الماسح الضوئي)",
+            lbl_length: "الطول",
+            lbl_chars: "حرف",
+            btn_load: "تحميل الإعدادات",
+            lbl_params: "الإعدادات",
+            search_placeholder: "بحث عن إعداد...",
+            msg_instruction: "ضع النص أعلاه ثم اضغط على 'تحميل الإعدادات' للبدء.",
+            lbl_output: "نص التكوين الجديد",
+            btn_copy: "نسخ النص",
+            btn_copied: "تم النسخ!",
+            error_short: "خطأ: النص قصير جداً.",
+            credit_script: "سكربت vce.py الأصلي بواسطة",
+            credit_site: "واجهة الموقع بواسطة"
+        }
+    };
+
+    let currentLang = 'en';
+
+    // --- MAPPING DATA (From user provided haval_jolion.json) ---
+    const configMap = {
+        "AAA": "[0][7:0]", "PAS": "[1][2:0]", "VAA": "[1][7:3]", "TBV": "[2][3:0]", "DAA": "[2][7:4]",
+        "EAA": "[3][7:0]", "CAL": "[4][1:0]", "AAC": "[4][5:2]", "BAA": "[4][7:6]", "KAG": "[5][7:0]",
+        "ZE0": "[6][7:0]", "PAA": "[7][5:0]", "KAJ": "[7][7:6]", "TAA": "[8][2:0]", "PAT": "[8][5:3]",
+        "SAF": "[8][7:6]", "SAA": "[9][3:0]", "RAB": "[9][7:4]", "TAT": "[10][3:0]", "SAQ": "[10][7:4]",
+        "TAU": "[11][2:0]", "TAB": "[11][5:3]", "TAS": "[11][7:6]", "TAQ": "[12][3:0]", "TBK": "[12][5:4]",
+        "TBA": "[12][7:6]", "UAC": "[13][1:0]", "UAB": "[13][7:2]", "VAQ": "[14][1:0]", "VAM": "[14][3:2]",
+        "VAL": "[14][5:4]", "TAR": "[14][7:6]", "VAR": "[15][3:0]", "TBU": "[15][5:4]", "ZF4": "[15][7:6]",
+        "TBR": "[16][1:0]", "PAP": "[16][4:2]", "VAJ": "[16][7:5]", "TBW": "[17][1:0]", "HAJ": "[17][4:2]",
+        "PAE": "[17][7:5]", "LAA": "[18][2:0]", "VAF": "[18][7:3]", "ZA3": "[19][3:0]", "ZA2": "[19][7:4]",
+        "TAW": "[20][1:0]", "KAQ": "[20][4:2]", "TAM": "[20][7:5]", "UAH": "[21][1:0]", "NAF": "[21][5:2]",
+        "ZC2": "[21][7:6]", "TCR": "[22][1:0]", "ZA0": "[22][3:2]", "RAE": "[22][5:4]", "ZB3": "[22][7:6]",
+        "ZF5": "[23][1:0]", "VAG": "[23][4:2]", "KAT": "[23][7:5]", "ZE2": "[24][3:0]", "TBG": "[24][7:4]",
+        "FAA": "[25][1:0]", "CBC": "[25][3:2]", "ZA5": "[25][7:4]", "ZB6": "[26][1:0]", "ZB7": "[26][4:2]",
+        "HAE": "[26][7:5]", "TBQ": "[27][3:0]", "BAB": "[27][7:4]", "UAG": "[28][1:0]", "TBH": "[28][4:2]",
+        "TCD": "[28][7:5]", "MAE": "[29][2:0]", "SAK": "[29][4:3]", "TCE": "[29][7:5]", "BAF": "[30][7:0]",
+        "TAY": "[31][1:0]", "ZD5": "[31][3:2]", "KAN": "[31][7:4]", "TCF": "[32][1:0]", "ZG3": "[32][3:2]",
+        "ZG2": "[32][7:4]", "HAT": "[33][1:0]", "MAG": "[33][4:2]", "MAF": "[33][7:5]", "TCA": "[34][2:0]",
+        "EAM": "[34][4:3]", "ZF6": "[34][7:5]", "FAM": "[35][0:0]", "TCQ": "[35][2:1]", "ZC3": "[35][4:3]",
+        "ZH1": "[35][6:5]", "ZG8": "[35][7:7]", "FAJ": "[36][1:0]", "TCP": "[36][3:2]", "ZH3": "[36][5:4]",
+        "TEU": "[36][6:6]", "ZQ1": "[36][7:7]", "TAJ": "[37][1:0]", "ZC0": "[37][3:2]", "KAU": "[37][7:4]",
+        "EAN": "[38][1:0]", "BAE": "[38][7:2]", "TDL": "[39][1:0]", "MAK": "[39][4:2]", "TDE": "[39][7:5]",
+        "PAB": "[40][3:0]", "HAQ": "[40][5:4]", "TBM": "[40][7:6]", "TDM": "[41][1:0]", "ZJ0": "[41][4:2]",
+        "FAD": "[41][7:5]", "ZAP": "[42][1:0]", "ZZ4": "[42][4:2]", "VHK": "[42][7:5]", "ZP9": "[43][1:0]",
+        "PAV": "[43][3:2]", "MAT": "[43][5:4]", "YBZ": "[43][7:6]", "ZW2": "[44][3:0]", "ZW3": "[44][7:4]",
+        "ZG0": "[45][3:0]", "ZAN": "[45][7:4]", "SAG": "[46][1:0]", "ZY1": "[46][3:2]", "ZP6": "[46][5:4]",
+        "ZW9": "[46][7:6]", "ZM2": "[47][7:0]", "TAN": "[48][3:0]", "ZK6": "[48][7:4]", "ZL3": "[49][1:0]",
+        "MAL": "[49][3:2]", "TGK": "[49][7:4]", "ZJ9": "[50][3:0]", "ZR2": "[50][7:4]", "MAD": "[51][3:0]",
+        "ZW8": "[51][5:4]", "ZE4": "[51][7:6]", "CCZ": "[52][3:0]", "ZA9": "[52][7:4]", "AAE": "[53][7:0]",
+        "PBW": "[54][1:0]", "PBU": "[54][3:2]", "PBV": "[54][5:4]", "PBT": "[54][7:6]", "ZEN": "[55][1:0]",
+        "VCD": "[55][3:2]", "SBB": "[55][7:4]", "ZQ3": "[56][7:4]", "ZA4": "[60][3:0]"
+    };
+
+    let currentBytes = [];
+    let parsedRules = {};
+
+    // --- LANGUAGE HANDLER ---
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+
+        // 1. Update Direction
+        document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+        // 2. Update Text Elements (data-i18n)
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) el.innerText = t[key];
+        });
+
+        // 3. Update Placeholders
+        document.getElementById('searchBox').placeholder = t.search_placeholder;
+
+        // 4. Update Error message if visible
+        const err = document.getElementById('errorMsg');
+        if (err.style.display === 'block') err.innerText = t.error_short;
+    }
+
+    // --- UTILITIES ---
+
+    function cleanHex(str) {
+        return str.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+    }
+
+    function hexToBytes(hex) {
+        const bytes = [];
+        for (let c = 0; c < hex.length; c += 2) {
+            bytes.push(parseInt(hex.substr(c, 2), 16));
+        }
+        return bytes;
+    }
+
+    function bytesToHex(bytes) {
+        return bytes.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join('');
+    }
+
+    function parseLogic(key, logicStr) {
+        const match = logicStr.match(/\[(\d+)\]\[(\d+):(\d+)\]/);
+        if (!match) return null;
+
+        const byteIdx = parseInt(match[1]);
+        const highBit = parseInt(match[2]);
+        const lowBit = parseInt(match[3]);
+        
+        const width = highBit - lowBit + 1;
+        const mask = (1 << width) - 1;
+
+        return {
+            key: key,
+            byteIdx: byteIdx,
+            shift: lowBit,
+            mask: mask << lowBit,
+            rawMask: mask,
+            maxVal: mask
+        };
+    }
+
+    // --- APP LOGIC ---
+
+    function loadConfig() {
+        const inputField = document.getElementById('inputHex');
+        const errorMsg = document.getElementById('errorMsg');
+        const grid = document.getElementById('editorGrid');
+        
+        const rawHex = cleanHex(inputField.value);
+        
+        if (rawHex.length < 10) {
+            errorMsg.innerText = translations[currentLang].error_short;
+            errorMsg.style.display = "block";
+            return;
+        }
+        errorMsg.style.display = "none";
+
+        currentBytes = hexToBytes(rawHex);
+        grid.innerHTML = ''; // Clear existing
+
+        const keys = Object.keys(configMap).sort(); 
+        
+        keys.forEach(key => {
+            const rule = parseLogic(key, configMap[key]);
+            parsedRules[key] = rule;
+
+            let currentVal = 0;
+            if (currentBytes[rule.byteIdx] !== undefined) {
+                currentVal = (currentBytes[rule.byteIdx] & rule.mask) >> rule.shift;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'control-item';
+            div.innerHTML = `
+                <label>
+                    ${key} 
+                    <span class="meta">[${rule.byteIdx}][${rule.shift + (rule.rawMask.toString(2).length -1)}:${rule.shift}]</span>
+                </label>
+                <input type="number" 
+                    id="param_${key}" 
+                    value="${currentVal}" 
+                    min="0" 
+                    max="${rule.maxVal}" 
+                    oninput="updateValue('${key}')">
+            `;
+            grid.appendChild(div);
+        });
+
+        generateOutput();
+    }
+
+    function updateValue(key) {
+        const rule = parsedRules[key];
+        const input = document.getElementById(`param_${key}`);
+        let newVal = parseInt(input.value);
+
+        if (isNaN(newVal)) newVal = 0;
+        
+        if (newVal > rule.maxVal) {
+            newVal = rule.maxVal;
+            input.value = newVal;
+        }
+        if (newVal < 0) newVal = 0;
+
+        if (currentBytes.length <= rule.byteIdx) {
+            while(currentBytes.length <= rule.byteIdx) currentBytes.push(0);
+        }
+
+        const clearMask = ~rule.mask;
+        currentBytes[rule.byteIdx] &= clearMask;
+        currentBytes[rule.byteIdx] |= (newVal << rule.shift);
+
+        generateOutput();
+    }
+
+    function generateOutput() {
+        const hex = bytesToHex(currentBytes);
+        document.getElementById('outputHex').value = hex;
+        document.getElementById('outputLen').innerText = hex.length;
+    }
+
+    function copyOutput() {
+        const copyText = document.getElementById("outputHex");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); 
+        navigator.clipboard.writeText(copyText.value);
+        
+        const btn = document.querySelector('button.secondary');
+        const originalText = translations[currentLang].btn_copy;
+        btn.innerText = translations[currentLang].btn_copied;
+        setTimeout(() => btn.innerText = originalText, 1500);
+    }
+
+    function filterParams() {
+        const filter = document.getElementById('searchBox').value.toUpperCase();
+        const items = document.getElementsByClassName('control-item');
+        for (let i = 0; i < items.length; i++) {
+            const label = items[i].getElementsByTagName("label")[0];
+            if (label.innerText.toUpperCase().indexOf(filter) > -1) {
+                items[i].style.display = "";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+
+    document.getElementById('inputHex').addEventListener('input', function() {
+        const clean = cleanHex(this.value);
+        document.getElementById('inputLen').innerText = clean.length;
+    });
+
+</script>
+
+</body>
+</html>
