@@ -1,17 +1,84 @@
-# GWM Vehicle Config Editor
-## Description
-Simple tool to edit `/data/vendor/vehicle/info/VehicleConfig.bin` in HUT to enable advanced features without an OBD2 scanner like ThinkDiag.
-Use `adb root` to access configuration file.
-## Requirements
-Python 3.2 or newer.
-## Usage
-```
-vce [--map <path-to-map-file>] [--type <config-type|binary,text>] [--src <path-to-source-config-file|VehicleConfig.bin,VehicleConfig.txt>] [--dst <path-to-source-config-file|NewVehicleConfig.bin,NewVehicleConfig.txt>] property1:bitstring1...propertyN=valueN
-```
-## Configuration map
-|Project code|Vehicle|Model Year|Region|
-|---------|----------|----------|----------|
-|0x36 (54)|Haval Jolion|2021-2023|China|
-|0x44 (68)|Haval Jolion|2021-2023|Russia|
-|0x82 (130)|Haval Jolion|2024-2025|China|
-|0x8F (143)|Haval Jolion|2024-2025|Russia|
+# Haval Jolion VCE Web Editor
+
+**[English](#english) | [Русский](#russian) | [العربية](#arabic)**
+
+---
+
+<a name="english"></a>
+## 🇬🇧 English
+
+A simple, client-side web tool to edit the **Vehicle Configuration** string for Haval Jolion cars. This tool simplifies the process of changing hidden settings (like Seat Heating, Drive Modes, etc.) without manually calculating hex bytes.
+
+It is based on the logic from the original `vce.py` script by DymOK.
+
+### 🌟 Features
+* **User Friendly:** No command line needed. Runs entirely in your browser.
+* **Smart Parsing:** Automatically reads your hex string and maps it to readable parameter names.
+* **Safe Editing:** Prevents invalid values by calculating the correct bitmask for every setting.
+* **Multi-language:** Supports English, Russian, and Arabic (with RTL support).
+* **Description Database:** Includes descriptions for over 100 parameters.
+
+### 🚀 How to Use
+1.  **Read Config:** Use your OBDII scanner (Launch, Thinkdiag, etc.) to read the **Vehicle Config** string from the (HUT) module.
+2.  **Open Tool:** Go to the [Live Website](https://ossaamaaa.github.io/jolion-config-editor/) (Replace with your link).
+3.  **Paste & Load:** Paste the hex string (e.g., `A1 04 5F...`) into the top box and click **"Load & Parse Settings"**.
+4.  **Edit:** Search for the parameter you want to change (e.g., `VAM`) and change the number.
+5.  **Write Back:** Copy the **New Configuration String** from the bottom box and write it back to your car using your scanner.
+
+### 🏆 Credits
+* **Original Script (`vce.py`):** [Dimitry (DymOK)](https://t.me/DymOK)
+* **Web Interface & Development:** [Osama (ossaamaaa)](https://t.me/ossaamaaa)
+
+---
+
+<a name="russian"></a>
+## 🇷🇺 Русский
+
+Простой веб-инструмент для редактирования строки **Конфигурации Автомобиля** (Vehicle Config) для Haval Jolion. Этот инструмент упрощает процесс изменения скрытых настроек (подогрев сидений, режимы вождения и т.д.) без необходимости вручную высчитывать hex-байты.
+
+Основан на логике оригинального скрипта `vce.py` от DymOK.
+
+### 🌟 Возможности
+* **Удобство:** Не нужна командная строка. Работает прямо в браузере.
+* **Умный Парсинг:** Автоматически читает вашу hex-строку и сопоставляет её с понятными именами параметров.
+* **Безопасное Редактирование:** Предотвращает ввод неверных значений, рассчитывая правильную битовую маску.
+* **Мультиязычность:** Поддержка английского, русского и арабского языков.
+* **База Описаний:** Включает описания для более чем 100 параметров.
+
+### 🚀 Как использовать
+1.  **Считайте конфиг:** Используйте OBDII сканер (Launch, Thinkdiag и др.) для чтения строки **Vehicle Config** из модуля (HUT).
+2.  **Откройте инструмент:** Перейдите на [Сайт](https://ossaamaaa.github.io/jolion-config-editor/) (Вставьте вашу ссылку).
+3.  **Вставьте и Загрузите:** Вставьте hex-строку (например, `A1 04 5F...`) в верхнее поле и нажмите **"Загрузить настройки"**.
+4.  **Редактируйте:** Найдите нужный параметр (например, `VAM`) и измените значение.
+5.  **Запишите обратно:** Скопируйте **Новую строку конфигурации** из нижнего поля и запишите её обратно в автомобиль через сканер.
+
+### 🏆 Благодарности
+* **Оригинальный скрипт (`vce.py`):** [Dimitry (DymOK)](https://t.me/DymOK)
+* **Веб-интерфейс и разработка:** [Osama (ossaamaaa)](https://t.me/ossaamaaa)
+
+---
+
+<a name="arabic"></a>
+## 🇸🇦 العربية
+
+أداة ويب بسيطة لتعديل كود **كونفق السيارة** (Vehicle Config) لسيارات هافال جوليان. تسهل هذه الأداة عملية تغيير الإعدادات المخفية (مثل تدفئة المقاعد، أوضاع القيادة، إلخ) دون الحاجة لحساب الرموز السداسية (Hex) يدوياً.
+
+الأداة مبنية على منطق السكربت الأصلي `vce.py` للمطور DymOK.
+
+### 🌟 المميزات
+* **سهلة الاستخدام:** لا تحتاج لأسطر أوامر (CMD). تعمل بالكامل من المتصفح.
+* **تحليل ذكي:** تقرأ كود السيارة تلقائياً وتحوله إلى إعدادات بأسماء واضحة.
+* **تعديل آمن:** تمنع إدخال قيم خاطئة عن طريق حساب "Bitmask" الصحيح لكل إعداد.
+* **متعددة اللغات:** تدعم الإنجليزية والروسية والعربية (مع دعم كامل للكتابة من اليمين لليسار RTL).
+* **قاعدة بيانات:** تحتوي على وصف لأكثر من 100 إعداد مختلف.
+
+### 🚀 طريقة الاستخدام
+1.  **قراءة الكود:** استخدم جهاز فحص (مثل Launch أو Thinkdiag) لقراءة كود **Vehicle Config** من وحدة  (HUT).
+2.  **افتح الأداة:** ادخل إلى [رابط الموقع](https://ossaamaaa.github.io/jolion-config-editor/) (ضع رابطك هنا).
+3.  **الصق وحمل:** الصق الكود (مثال: `...A1 04 5F`) في المربع العلوي واضغط على **"تحميل الإعدادات"**.
+4.  **عدّل:** ابحث عن الإعداد الذي تريد تغييره (مثل `VAM`) وقم بتغيير الرقم.
+5.  **احفظ:** انسخ **نص التكوين الجديد** من المربع السفلي واكتبه مرة أخرى في السيارة باستخدام جهاز الفحص.
+
+### 🏆 الحقوق
+* **السكربت الأصلي (`vce.py`):** [Dimitry (DymOK)](https://t.me/DymOK)
+* **واجهة الموقع والتطوير:** [Osama (ossaamaaa)](https://t.me/ossaamaaa)
